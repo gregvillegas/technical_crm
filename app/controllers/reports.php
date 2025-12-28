@@ -97,9 +97,9 @@ $userPerformance = $userStmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <?php include 'sidebar.php'; ?>
+    <?php include __DIR__ . '/../views/sidebar.php'; ?>
     
-    <div class="main-content col-md-10 p-4">
+    <div class="container-fluid py-4">
         <h2>Sales Reports & Analytics</h2>
         
         <!-- Time Period Selector -->

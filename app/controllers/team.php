@@ -116,7 +116,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col-md-3">
                         <label class="form-label">Role</label>
                         <select name="role" class="form-select">
-                            <option value="sales_rep">Sales Rep</option>
+                            <option value="sales_rep">Technical Sales</option>
                             <option value="sales_manager">Sales Manager</option>
                             <option value="admin">Admin</option>
                         </select>

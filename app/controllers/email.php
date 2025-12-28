@@ -227,7 +227,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
                     <h5 class="modal-title">Send Email</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="send_email.php" method="POST">
+                <form action="/email" method="POST">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Select Customer</label>
@@ -287,7 +287,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
             });
             
             // Load customers for email modal
-            $.get('ajax/get_customers.php', function(data) {
+            $.get('/ajax/get_customers.php', function(data) {
                 $('#customerSelect').html(data);
             });
             
@@ -295,7 +295,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
             $('#templateSelect').change(function() {
                 const templateId = $(this).val();
                 if(templateId) {
-                    $.get('ajax/get_template.php?id=' + templateId, function(data) {
+                    $.get('/ajax/get_template.php?id=' + templateId, function(data) {
                         $('#emailPreview').html(data.content);
                         showVariableFields(data.variables);
                     }, 'json');

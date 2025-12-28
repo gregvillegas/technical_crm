@@ -417,7 +417,7 @@ if(!Auth::isLoggedIn()) {
                             <i class="fas fa-calendar-plus"></i> Schedule Activity
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="logout.php">
+                        <li><a class="dropdown-item" href="/logout">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a></li>
                     </ul>

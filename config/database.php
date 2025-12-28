@@ -2,10 +2,10 @@
 // config/database.php
 class Database {
     private $host = 'localhost';    
-    private $port = '8889';
+    private $port = '3306';
     private $db_name = 'technical_crm';
-    private $username = 'root';
-    private $password = 'root'; // Default MAMP password
+    private $username = 'pma_adm';
+    private $password = 'brx4*svv'; // Default MAMP password
     public $conn;
 
     public function getConnection() {

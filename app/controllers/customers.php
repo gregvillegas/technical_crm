@@ -203,6 +203,6 @@ $salesReps = $salesStmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
     </div>
 
-    <?php include 'app/views/footer.php'; ?>
+    <?php include __DIR__ . '/../views/footer.php'; ?>
 </body>
 </html>

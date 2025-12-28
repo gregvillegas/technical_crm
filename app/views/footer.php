@@ -296,7 +296,7 @@
             // Load notifications in dropdown
             function loadNotificationDropdown() {
                 $.ajax({
-                    url: 'ajax/get_recent_notifications.php',
+                    url: '/ajax/get_recent_notifications.php',
                     method: 'GET',
                     success: function(data) {
                         $('#notificationDropdownContent').html(data);
@@ -308,8 +308,9 @@
             // Update notification badge count
             function updateNotificationBadge() {
                 $.ajax({
-                    url: 'ajax/get_notification_counts.php',
+                    url: '/ajax/get_notification_counts.php',
                     method: 'GET',
+                    dataType: 'json',
                     success: function(data) {
                         const badge = $('#notificationBadge');
                         if(data.total > 0) {

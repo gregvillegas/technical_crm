@@ -1,5 +1,4 @@
 <?php
-// ajax/get_template.php
 require_once '../config/database.php';
 require_once '../app/core/Auth.php';
 
@@ -11,22 +10,30 @@ if(!Auth::isLoggedIn()) {
 $db = new Database();
 $conn = $db->getConnection();
 
-$template_id = $_GET['id'] ?? 0;
+$isAdmin = (Auth::hasRole('admin') || Auth::hasRole('sales_manager'));
+$userId = Auth::getUserID();
 
-$query = "SELECT * FROM email_templates WHERE id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bindParam(1, $template_id);
-$stmt->execute();
-$template = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if($template) {
-    $variables = json_decode($template['variables'], true) ?: [];
-    echo json_encode([
-        'content' => $template['content'],
-        'variables' => $variables,
-        'subject' => $template['subject']
-    ]);
+if ($isAdmin) {
+    $sql = "SELECT id, company_name, contact_person, email FROM customers ORDER BY company_name";
+    $stmt = $conn->query($sql);
 } else {
-    echo json_encode(['error' => 'Template not found']);
+    $sql = "SELECT id, company_name, contact_person, email FROM customers WHERE assigned_to = ? ORDER BY company_name";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$userId]);
 }
+
+$options = '<option value="">Select Customer</option>';
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $label = htmlspecialchars($row['company_name']);
+    if (!empty($row['contact_person'])) {
+        $label .= ' (' . htmlspecialchars($row['contact_person']) . ')';
+    }
+    if (!empty($row['email'])) {
+        $label .= ' - ' . htmlspecialchars($row['email']);
+    }
+    $options .= '<option value="' . (int)$row['id'] . '">' . $label . '</option>';
+}
+
+header('Content-Type: text/html; charset=UTF-8');
+echo $options;
 ?>

@@ -329,7 +329,7 @@ $conversionRate = $touches7dTotal > 0 ? round(($qualifiedLeads7d / $touches7dTot
                                     <a href="/add_deal" class="btn btn-success">
                                         <i class="fas fa-plus-circle"></i> Create Deal
                                     </a>
-                                    <a href="send_email.php" class="btn btn-info text-white">
+                                    <a href="/email" class="btn btn-info text-white">
                                         <i class="fas fa-envelope"></i> Send Email
                                     </a>
                                     <a href="/schedule_activity" class="btn btn-warning">
