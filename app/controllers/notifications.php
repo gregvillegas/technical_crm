@@ -366,7 +366,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
                                                                     onclick="completeActivity(<?php echo $activity['id']; ?>)">
                                                                 <i class="fas fa-check"></i> Mark Complete
                                                             </button>
-                                                            <a href="reschedule_activity.php?id=<?php echo $activity['id']; ?>" 
+                                                            <a href="/reschedule_activity?id=<?php echo $activity['id']; ?>" 
                                                                class="btn btn-sm btn-outline-warning">
                                                                 <i class="fas fa-calendar-alt"></i> Reschedule
                                                             </a>
@@ -470,7 +470,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
     <script>
     // AJAX Functions for Notifications
     function markAsRead(notificationId) {
-        fetch('ajax/mark_notification_read.php', {
+        fetch('/ajax/mark_notification_read.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -489,7 +489,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
     function deleteNotification(notificationId) {
         if(!confirm('Are you sure you want to delete this notification?')) return;
         
-        fetch('ajax/delete_notification.php', {
+        fetch('/ajax/delete_notification.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -506,7 +506,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
     }
     
     function completeFollowup(followupId) {
-        fetch('ajax/complete_followup.php', {
+        fetch('/ajax/complete_followup.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -522,7 +522,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
     }
     
     function completeActivity(activityId) {
-        fetch('ajax/complete_activity.php', {
+        fetch('/ajax/complete_activity.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -544,7 +544,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
     function clearAllNotifications() {
         if(!confirm('Are you sure you want to clear all notifications? This cannot be undone.')) return;
         
-        fetch('ajax/clear_all_notifications.php', {
+        fetch('/ajax/clear_all_notifications.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -560,7 +560,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
     
     function updateNotificationCount() {
         // Update badge counts
-        fetch('ajax/get_notification_counts.php')
+        fetch('/ajax/get_notification_counts.php')
         .then(response => response.json())
         .then(data => {
             // Update badges in tabs

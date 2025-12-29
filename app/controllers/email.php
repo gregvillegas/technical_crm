@@ -8,6 +8,7 @@ Auth::requireLogin();
 
 $db = new Database();
 $conn = $db->getConnection();
+$error = '';
 
 // Get email templates
 $query = "SELECT * FROM email_templates WHERE is_active = 1 ORDER BY category, template_name";
@@ -18,27 +19,42 @@ $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Handle template upload
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
     $template_name = Helpers::escape($_POST['template_name']);
-    $template_slug = strtolower(str_replace(' ', '-', $template_name));
+    $base_slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $template_name), '-'));
     $subject = Helpers::escape($_POST['subject']);
     $content = $_POST['content'];
     $category = Helpers::escape($_POST['category']);
     $variables = json_encode(['customer_name', 'deal_name', 'sales_rep_name']);
-    
-    $query = "INSERT INTO email_templates 
-              (template_name, template_slug, subject, content, category, variables, created_by)
-              VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(1, $template_name);
-    $stmt->bindParam(2, $template_slug);
-    $stmt->bindParam(3, $subject);
-    $stmt->bindParam(4, $content);
-    $stmt->bindParam(5, $category);
-    $stmt->bindParam(6, $variables);
-    $stmt->bindParam(7, $_SESSION['user_id']);
-    
-    if($stmt->execute()) {
-        header("Location: email.php?msg=added");
+
+    try {
+        // Ensure unique slug
+        $template_slug = $base_slug !== '' ? $base_slug : ('template-' . time());
+        $check = $conn->prepare('SELECT COUNT(*) AS cnt FROM email_templates WHERE template_slug = ?');
+        $suffix = 2;
+        while (true) {
+            $check->execute([$template_slug]);
+            $row = $check->fetch(PDO::FETCH_ASSOC);
+            if((int)$row['cnt'] === 0) break;
+            $template_slug = $base_slug . '-' . $suffix;
+            $suffix++;
+        }
+
+        $query = "INSERT INTO email_templates 
+                  (template_name, template_slug, subject, content, category, variables, created_by)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(1, $template_name);
+        $stmt->bindParam(2, $template_slug);
+        $stmt->bindParam(3, $subject);
+        $stmt->bindParam(4, $content);
+        $stmt->bindParam(5, $category);
+        $stmt->bindParam(6, $variables);
+        $stmt->bindParam(7, $_SESSION['user_id']);
+        $stmt->execute();
+
+        header("Location: /email?msg=added");
         exit();
+    } catch (Exception $e) {
+        $error = 'Failed to save template: ' . htmlspecialchars($e->getMessage());
     }
 }
 ?>
@@ -56,6 +72,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
     <?php include __DIR__ . '/../views/sidebar.php'; ?>
 
     <div class="container-fluid py-4">
+        <?php if(isset($_GET['msg']) && $_GET['msg']==='added'): ?>
+            <div class="alert alert-success">Template added successfully.</div>
+        <?php endif; ?>
+        <?php if($error): ?>
+            <div class="alert alert-danger"><?php echo $error; ?></div>
+        <?php endif; ?>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Email Templates</h2>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTemplateModal">

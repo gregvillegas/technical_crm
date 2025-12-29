@@ -144,36 +144,6 @@ CREATE TABLE email_templates (
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Activities Table
-CREATE TABLE activities (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    activity_type ENUM('email', 'call', 'meeting', 'demo', 'proposal', 'followup', 'other') NOT NULL,
-    subject VARCHAR(200) NOT NULL,
-    description TEXT,
-    
-    -- Related Entities
-    related_to ENUM('customer', 'deal', 'lead'),
-    related_id INT,
-    
-    -- Dates
-    activity_date DATETIME NOT NULL,
-    reminder_date DATETIME,
-    completed_date DATETIME,
-    
-    -- Status
-    status ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
-    outcome TEXT,
-    
-    -- Assigned
-    assigned_to INT,
-    created_by INT,
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-);
-
 -- Email Logs Table
 CREATE TABLE email_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -234,6 +204,74 @@ CREATE TABLE followups (
     
     FOREIGN KEY (deal_id) REFERENCES deals(id) ON DELETE CASCADE,
     FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tasks Table
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    task_type ENUM('general', 'followup', 'proposal', 'research', 'administrative') DEFAULT 'general',
+    
+    -- Relations
+    related_to ENUM('customer', 'deal', 'lead', 'none') DEFAULT 'none',
+    related_id INT NULL,
+    
+    -- Status & Priority
+    priority ENUM('low', 'medium', 'high', 'urgent') DEFAULT 'medium',
+    status ENUM('pending', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending',
+    
+    -- Dates
+    due_date DATE,
+    completed_date DATETIME,
+    
+    -- Assignment
+    assigned_to INT NOT NULL,
+    created_by INT NOT NULL,
+    
+    -- Activity Link
+    activity_id INT NULL, -- Links to scheduled activity
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (activity_id) REFERENCES activities(id) ON DELETE SET NULL
+);
+
+-- Activities Table (Enhanced from existing)
+CREATE TABLE activities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    activity_type ENUM('email', 'call', 'meeting', 'demo', 'proposal', 'followup', 'other') NOT NULL,
+    subject VARCHAR(200) NOT NULL,
+    description TEXT,
+    
+    -- Relations
+    related_to ENUM('customer', 'deal', 'lead', 'task', 'none') DEFAULT 'none', -- Added 'task'
+    related_id INT,
+    
+    -- Dates
+    activity_date DATETIME NOT NULL,
+    reminder_date DATETIME,
+    completed_date DATETIME,
+    
+    -- Status
+    status ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
+    outcome TEXT,
+    
+    -- Assignment
+    assigned_to INT,
+    created_by INT,
+    
+    -- Task Link
+    task_id INT NULL, -- Links back to task
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL
 );
 
 -- System Notifications Table

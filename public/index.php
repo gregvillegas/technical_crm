@@ -47,6 +47,7 @@ $routes = [
     '/reports' => 'reports.php',
     '/notifications' => 'notifications.php',
     '/tasks' => 'tasks.php',
+    '/create_task' => 'create_task.php',
     '/team' => 'team.php',
     '/login' => 'login.php',
     '/logout' => 'logout.php',
@@ -54,6 +55,7 @@ $routes = [
     '/add_lead' => 'add_lead.php'
     ,'/schedule_activity' => 'schedule_activity.php'
     ,'/log_touch' => 'log_touch.php'
+    ,'/reschedule_activity' => 'reschedule_activity.php'
 ];
 
 // Find the route (exact match first). Avoid '/' matching all paths.

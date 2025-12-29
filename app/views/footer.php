@@ -9,7 +9,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <span class="text-muted">
-                            <i class="fas fa-code"></i> Technical CRM v1.0 &copy; <?php echo date('Y'); ?>
+                            <i class="fas fa-code"></i> MI Technical CRM v1.0 &copy; <?php echo date('Y'); ?>
                         </span>
                         <span class="text-muted ms-3">
                             <i class="fas fa-user"></i> Logged in as: <?php echo $_SESSION['full_name']; ?>
@@ -81,10 +81,28 @@
                 // Fallback: ensure toggle works via click even if data attributes fail
                 document.querySelectorAll('.dropdown-toggle').forEach(function(btn){
                     btn.addEventListener('click', function(ev){
+                        ev.preventDefault();
                         try {
                             var dd = bootstrap.Dropdown.getOrCreateInstance(btn);
                             dd.toggle();
-                        } catch (e) {}
+                        } catch (e) {
+                            var parent = btn.closest('.dropdown');
+                            var menu = parent ? parent.querySelector('.dropdown-menu') : null;
+                            if (menu) {
+                                var isShown = menu.classList.contains('show');
+                                menu.classList.toggle('show', !isShown);
+                                btn.setAttribute('aria-expanded', String(!isShown));
+                            }
+                        }
+                    });
+                });
+                document.addEventListener('click', function(e){
+                    document.querySelectorAll('.dropdown-menu.show').forEach(function(menu){
+                        var toggle = menu.previousElementSibling;
+                        var isToggle = toggle && toggle.classList && toggle.classList.contains('dropdown-toggle');
+                        if (!menu.contains(e.target) && !isToggle) {
+                            menu.classList.remove('show');
+                        }
                     });
                 });
             });
@@ -126,10 +144,11 @@
             // Check for pending follow-ups and show notification
             function checkPendingFollowups() {
                 $.ajax({
-                    url: 'ajax/check_followups.php',
+                    url: '/ajax/check_followups.php',
                     method: 'GET',
+                    dataType: 'json',
                     success: function(response) {
-                        if(response.count > 0) {
+                        if(response && response.count > 0) {
                             showNotification('You have ' + response.count + ' pending follow-ups today!', 'warning');
                         }
                     }

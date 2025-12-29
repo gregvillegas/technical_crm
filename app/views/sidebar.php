@@ -371,14 +371,14 @@ if(!Auth::isLoggedIn()) {
             <div class="d-flex align-items-center">
                 <!-- Notifications -->
                 <div class="dropdown me-3">
-                    <button class="btn btn-outline-secondary position-relative" type="button" 
-                            data-bs-toggle="dropdown">
+                    <button class="btn btn-outline-secondary position-relative dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             3
                         </span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                    <ul id="notificationDropdownContent" class="dropdown-menu dropdown-menu-end" style="width: 300px;">
                         <li><h6 class="dropdown-header">Notifications</h6></li>
                         <li><a class="dropdown-item" href="#">
                             <i class="fas fa-envelope text-primary"></i> Follow-up due tomorrow

@@ -42,7 +42,7 @@ $conn = $db->getConnection();
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            events: 'ajax/get_calendar_events.php',
+            events: '/ajax/get_calendar_events.php',
             eventClick: function(info) {
                 alert('Event: ' + info.event.title);
             },
