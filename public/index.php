@@ -45,6 +45,7 @@ $routes = [
     '/calendar' => 'calendar.php',
     '/email' => 'email.php',
     '/reports' => 'reports.php',
+    '/results' => 'results.php',
     '/notifications' => 'notifications.php',
     '/tasks' => 'tasks.php',
     '/create_task' => 'create_task.php',

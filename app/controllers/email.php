@@ -9,12 +9,53 @@ Auth::requireLogin();
 $db = new Database();
 $conn = $db->getConnection();
 $error = '';
+$message = '';
 
 // Get email templates
 $query = "SELECT * FROM email_templates WHERE is_active = 1 ORDER BY category, template_name";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Handle send email (log to email_logs)
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_email'])) {
+    try {
+        $customerId = (int)($_POST['customer_id'] ?? 0);
+        $templateId = (int)($_POST['template_id'] ?? 0);
+        if(!$customerId || !$templateId) { throw new Exception('Customer and template are required'); }
+
+        // Load customer
+        $cstmt = $conn->prepare('SELECT company_name, contact_person, email FROM customers WHERE id = ?');
+        $cstmt->execute([$customerId]);
+        $cust = $cstmt->fetch(PDO::FETCH_ASSOC);
+        if(!$cust || empty($cust['email'])) { throw new Exception('Customer email not found'); }
+
+        // Load template if final content/subject not provided
+        $tstmt = $conn->prepare('SELECT subject, content FROM email_templates WHERE id = ?');
+        $tstmt->execute([$templateId]);
+        $tpl = $tstmt->fetch(PDO::FETCH_ASSOC);
+        if(!$tpl) { throw new Exception('Template not found'); }
+
+        $subject = $_POST['final_subject'] ?? $tpl['subject'];
+        $content = $_POST['final_content'] ?? $tpl['content'];
+
+        // Insert log
+        $lstmt = $conn->prepare('INSERT INTO email_logs (template_id, recipient_email, recipient_name, subject, content, sent_by, related_to, related_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, "sent")');
+        $lstmt->execute([
+            $templateId,
+            $cust['email'],
+            ($cust['contact_person'] ?: $cust['company_name']),
+            $subject,
+            $content,
+            $_SESSION['user_id'],
+            'customer',
+            $customerId
+        ]);
+        $message = 'Email logged as sent.';
+    } catch (Exception $e) {
+        $error = 'Failed to send email: ' . htmlspecialchars($e->getMessage());
+    }
+}
 
 // Handle template upload
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
@@ -77,6 +118,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
         <?php endif; ?>
         <?php if($error): ?>
             <div class="alert alert-danger"><?php echo $error; ?></div>
+        <?php endif; ?>
+        <?php if($message): ?>
+            <div class="alert alert-success"><?php echo $message; ?></div>
         <?php endif; ?>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Email Templates</h2>
@@ -249,7 +293,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
                     <h5 class="modal-title">Send Email</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="/email" method="POST">
+                <form action="/email" method="POST" id="sendEmailForm">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Select Customer</label>
@@ -281,6 +325,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <input type="hidden" name="final_subject" value="">
+                        <input type="hidden" name="final_content" value="">
+                        <input type="hidden" name="send_email" value="1">
                         <button type="submit" class="btn btn-primary">Send Email</button>
                     </div>
                 </form>
@@ -357,6 +404,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['upload_template'])) {
                 });
                 $('#emailPreview').html(preview);
             }
+
+            // Before submit, capture subject/content with variables applied
+            $('#sendEmailForm').on('submit', function() {
+                const applied = (function() {
+                    let content = $('#emailPreview').html();
+                    let subject = $('#templateSelect option:selected').text();
+                    $('.variable-input').each(function() {
+                        const variable = $(this).data('variable');
+                        const value = $(this).val();
+                        const re = new RegExp(`{${variable}}`, 'g');
+                        content = content.replace(re, value);
+                        subject = subject.replace(re, value);
+                    });
+                    return { subject, content };
+                })();
+                $(this).find('input[name="final_subject"]').val(applied.subject);
+                $(this).find('input[name="final_content"]').val(applied.content);
+            });
         });
     </script>
 </body>

@@ -172,7 +172,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button">
                         All
-                        <span class="badge bg-primary ms-1"><?php echo count($notifications); ?></span>
+                        <span class="badge bg-primary ms-1"><?php echo count($notifications) + count($pendingFollowups) + count($overdueActivities); ?></span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -408,10 +408,47 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_all_read'])) {
                             <p class="text-muted">All activities are up to date!</p>
                         </div>
                     <?php else: ?>
-                        <div class="list-group">
-                            <?php foreach($overdueActivities as $activity): ?>
-                                <!-- Same activity items as above -->
-                            <?php endforeach; ?>
+                        <div class="card">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Overdue Activities</h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                <?php foreach($overdueActivities as $activity): 
+                                    $daysOverdue = floor((time() - strtotime($activity['activity_date'])) / (60 * 60 * 24));
+                                ?>
+                                    <div class="list-group-item notification-item urgent">
+                                        <div class="d-flex align-items-start">
+                                            <div class="notification-icon bg-danger text-white">
+                                                <i class="fas fa-exclamation"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between">
+                                                    <h6 class="mb-1"><?php echo htmlspecialchars($activity['subject']); ?></h6>
+                                                    <div class="time-ago">
+                                                        <span class="badge bg-danger">
+                                                            <?php echo $daysOverdue; ?> day<?php echo $daysOverdue != 1 ? 's' : ''; ?> overdue
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <p class="mb-1"><?php echo htmlspecialchars($activity['description']); ?></p>
+                                                <div class="mt-2 d-flex justify-content-between align-items-center">
+                                                    <span class="notification-category bg-danger text-white">
+                                                        <i class="fas fa-tasks"></i> Activity
+                                                    </span>
+                                                    <div class="notification-actions">
+                                                        <button class="btn btn-sm btn-outline-success" onclick="completeActivity(<?php echo $activity['id']; ?>)">
+                                                            <i class="fas fa-check"></i> Mark Complete
+                                                        </button>
+                                                        <a href="/reschedule_activity?id=<?php echo $activity['id']; ?>" class="btn btn-sm btn-outline-warning">
+                                                            <i class="fas fa-calendar-alt"></i> Reschedule
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>

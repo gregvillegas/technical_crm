@@ -1,0 +1,57 @@
+    
+        .notification-item {
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        .notification-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        .notification-item.unread {
+            border-left-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        .notification-item.urgent {
+            border-left-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        .notification-item.warning {
+            border-left-color: #ffc107;
+            background-color: #fffdf5;
+        }
+        .notification-item.success {
+            border-left-color: #28a745;
+            background-color: #f5fff7;
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        .time-ago {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .notification-actions {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .notification-item:hover .notification-actions {
+            opacity: 1;
+        }
+        .notification-category {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    
